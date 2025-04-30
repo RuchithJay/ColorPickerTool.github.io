@@ -1,2 +1,2 @@
-# ColorPickerTool.github.io
-A simple web-based color picker tool.
+# ColorPickerTool 🔴🟢🔵🟠🟡🟣
+A simple web-based color picker tool done using HTML, CSS and Java Script.
