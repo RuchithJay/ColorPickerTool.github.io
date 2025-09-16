@@ -6,3 +6,6 @@ You can get your color codes in:
 * HEX
 * RGB
 * HSL
+
+View at:
+https://ruchithjay.github.io/ColorPickerTool.github.io/
