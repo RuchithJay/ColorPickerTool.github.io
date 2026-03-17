@@ -2,20 +2,6 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="theme-color" content="#FFFFFF">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Color Picker</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <div class="color-picker-container">
-        <h1>Color Picker</h1>
-        
-        <div class="color-display" id="colorDisplay">
-            <span id="colorValue">#FFFFFF</span><!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chroma — Color Picker</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
@@ -1143,47 +1129,5 @@ function extractColors() {
     document.getElementById('extractedCard').style.display = 'block';
 }
 </script>
-</body>
-</html>
-
-        </div>
-        
-        <div class="controls">
-            <div class="sliders">
-                <label for="red">Red:</label>
-                <input type="range" id="red" min="0" max="255" value="255">
-                <span id="redValue">255</span>
-                
-                <label for="green">Green:</label>
-                <input type="range" id="green" min="0" max="255" value="255">
-                <span id="greenValue">255</span>
-                
-                <label for="blue">Blue:</label>
-                <input type="range" id="blue" min="0" max="255" value="255">
-                <span id="blueValue">255</span>
-                
-                <label for="alpha">Alpha:</label>
-                <input type="range" id="alpha" min="0" max="100" value="100">
-                <span id="alphaValue">100%</span>
-            </div>
-            
-            <div class="color-modes">
-                <label for="colorMode">Color Mode:</label>
-                <select id="colorMode">
-                    <option value="hex">HEX</option>
-                    <option value="rgb">RGB</option>
-                    <option value="hsl">HSL</option>
-                </select>
-            </div>
-            
-            <button id="copyBtn">Copy Color Code</button>
-        </div>
-    </div>
-    
-    <footer>
-        <p>&copy; <span id="currentYear"></span> Ruchithjay. All rights reserved.</p>
-    </footer>
-    
-    <script src="script.js"></script>
 </body>
 </html>
