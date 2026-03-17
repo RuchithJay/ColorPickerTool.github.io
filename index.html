@@ -12,7 +12,1140 @@
         <h1>Color Picker</h1>
         
         <div class="color-display" id="colorDisplay">
-            <span id="colorValue">#FFFFFF</span>
+            <span id="colorValue">#FFFFFF</span><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chroma — Color Picker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #fdf6f0;
+            --surface: rgba(255,255,255,0.72);
+            --surface2: rgba(255,248,242,0.85);
+            --border: rgba(210,190,175,0.45);
+            --text: #3d2f28;
+            --text-muted: #9a8070;
+            --accent: #e8a598;
+            --accent2: #b8c9e8;
+            --accent3: #c8e0c0;
+            --accent4: #e8d5b0;
+            --shadow: 0 4px 24px rgba(120,80,60,0.10);
+            --shadow-lg: 0 8px 40px rgba(120,80,60,0.15);
+            --radius: 18px;
+            --radius-sm: 10px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            background-image:
+                radial-gradient(ellipse at 10% 20%, rgba(232,165,152,0.18) 0%, transparent 50%),
+                radial-gradient(ellipse at 90% 80%, rgba(184,201,232,0.18) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(200,224,192,0.10) 0%, transparent 60%);
+        }
+
+        header {
+            text-align: center;
+            padding: 2.5rem 1rem 1rem;
+        }
+
+        header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.4rem;
+            color: var(--text);
+            letter-spacing: -0.5px;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 0.3rem;
+            font-weight: 300;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 0.4rem;
+            padding: 1rem 1rem 0;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            padding: 0.5rem 1.2rem;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+            backdrop-filter: blur(8px);
+        }
+
+        .tab-btn:hover { color: var(--text); border-color: var(--accent); }
+        .tab-btn.active {
+            background: var(--text);
+            color: #fff;
+            border-color: var(--text);
+        }
+
+        .panels { padding: 1.2rem 1rem 3rem; max-width: 680px; margin: 0 auto; }
+
+        .panel { display: none; }
+        .panel.active { display: block; }
+
+        /* ── CARD ── */
+        .card {
+            background: var(--surface);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* ── COLOR PICKER PANEL ── */
+        .color-preview {
+            width: 100%;
+            height: 140px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .color-badge {
+            background: rgba(255,255,255,0.82);
+            backdrop-filter: blur(6px);
+            border-radius: 50px;
+            padding: 0.35rem 1rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #333;
+            cursor: pointer;
+            transition: transform 0.15s;
+            user-select: none;
+        }
+        .color-badge:hover { transform: scale(1.04); }
+        .color-badge.copied { background: rgba(200,224,192,0.95); }
+
+        .slider-group { margin-bottom: 0.8rem; }
+
+        .slider-row {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .slider-label {
+            font-size: 0.78rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            width: 42px;
+            flex-shrink: 0;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px; height: 18px;
+            border-radius: 50%;
+            background: #fff;
+            border: 2px solid rgba(0,0,0,0.2);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+            cursor: pointer;
+        }
+
+        #slider-r { background: linear-gradient(to right, #000, #ff0000); }
+        #slider-g { background: linear-gradient(to right, #000, #00ff00); }
+        #slider-b { background: linear-gradient(to right, #000, #0000ff); }
+        #slider-a { background: linear-gradient(to right, rgba(200,200,200,0.3), #888); }
+
+        .slider-val {
+            font-size: 0.8rem;
+            font-weight: 500;
+            width: 36px;
+            text-align: right;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        .mode-row {
+            display: flex;
+            gap: 0.4rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            padding: 0.3rem 0.85rem;
+            font-size: 0.78rem;
+            font-weight: 500;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: all 0.18s;
+            font-family: 'DM Sans', sans-serif;
+        }
+        .mode-btn.active, .mode-btn:hover {
+            background: var(--text); color: #fff; border-color: var(--text);
+        }
+
+        .copy-all-btn {
+            width: 100%;
+            padding: 0.65rem;
+            background: var(--accent);
+            border: none;
+            border-radius: var(--radius-sm);
+            color: #fff;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-all-btn:hover { background: #d98c7e; transform: translateY(-1px); }
+
+        /* saved swatches */
+        .swatches-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.8rem;
+        }
+
+        .swatch {
+            width: 32px; height: 32px;
+            border-radius: 8px;
+            border: 2px solid rgba(255,255,255,0.8);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+            cursor: pointer;
+            transition: transform 0.15s;
+            position: relative;
+        }
+        .swatch:hover { transform: scale(1.15); }
+        .swatch .swatch-del {
+            display: none;
+            position: absolute;
+            top: -5px; right: -5px;
+            background: #e88;
+            color: #fff;
+            width: 14px; height: 14px;
+            border-radius: 50%;
+            font-size: 9px;
+            align-items: center;
+            justify-content: center;
+        }
+        .swatch:hover .swatch-del { display: flex; }
+
+        .save-btn {
+            width: 32px; height: 32px;
+            border-radius: 8px;
+            border: 2px dashed var(--border);
+            background: transparent;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+        }
+        .save-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* ── HARMONY PANEL ── */
+        .harmony-type-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .harmony-btn {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 0.55rem 0.4rem;
+            font-size: 0.78rem;
+            font-weight: 500;
+            cursor: pointer;
+            color: var(--text-muted);
+            text-align: center;
+            transition: all 0.18s;
+            font-family: 'DM Sans', sans-serif;
+        }
+        .harmony-btn.active, .harmony-btn:hover {
+            background: var(--text); color: #fff; border-color: var(--text);
+        }
+
+        .harmony-palette {
+            display: flex;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+        }
+
+        .harmony-swatch {
+            flex: 1;
+            min-width: 70px;
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            transition: transform 0.15s;
+            cursor: pointer;
+        }
+        .harmony-swatch:hover { transform: translateY(-3px); }
+
+        .harmony-color-block { height: 80px; }
+
+        .harmony-color-info {
+            background: #fff;
+            padding: 0.4rem 0.5rem;
+            font-size: 0.72rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        /* ── GRADIENT PANEL ── */
+        .gradient-preview {
+            width: 100%;
+            height: 120px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 1rem;
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+
+        .gradient-stops {
+            display: flex;
+            flex-direction: column;
+            gap: 0.7rem;
+            margin-bottom: 1rem;
+        }
+
+        .stop-row {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+        }
+
+        .stop-color-swatch {
+            width: 34px; height: 34px;
+            border-radius: 8px;
+            border: 2px solid var(--border);
+            cursor: pointer;
+            flex-shrink: 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .stop-color-swatch input[type="color"] {
+            position: absolute;
+            inset: -4px;
+            width: calc(100% + 8px);
+            height: calc(100% + 8px);
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .stop-pos-label { font-size: 0.78rem; color: var(--text-muted); width: 28px; }
+
+        .stop-pos-slider {
+            flex: 1;
+            background: linear-gradient(to right, #e0d0c8, #c8b8a8);
+        }
+
+        .add-stop-btn, .remove-stop-btn {
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            width: 28px; height: 28px;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 1rem;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.15s;
+            font-family: 'DM Sans', sans-serif;
+        }
+        .add-stop-btn:hover { border-color: var(--accent3); color: var(--accent3); }
+        .remove-stop-btn:hover { border-color: #e88; color: #e88; }
+
+        .gradient-controls {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .gradient-type-btn {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            padding: 0.3rem 0.85rem;
+            font-size: 0.78rem;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: all 0.15s;
+            font-family: 'DM Sans', sans-serif;
+        }
+        .gradient-type-btn.active, .gradient-type-btn:hover {
+            background: var(--text); color: #fff; border-color: var(--text);
+        }
+
+        .angle-row {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        .angle-row input[type="range"] {
+            width: 90px;
+            background: linear-gradient(to right, #d0c0b8, #a09080);
+        }
+
+        .gradient-code {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 0.75rem 1rem;
+            font-size: 0.78rem;
+            font-family: 'Courier New', monospace;
+            color: var(--text-muted);
+            word-break: break-all;
+            cursor: pointer;
+            transition: all 0.15s;
+            user-select: all;
+        }
+        .gradient-code:hover { border-color: var(--accent); }
+
+        /* ── IMAGE EXTRACTOR ── */
+        .upload-zone {
+            border: 2px dashed var(--border);
+            border-radius: var(--radius-sm);
+            padding: 2rem 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .upload-zone:hover, .upload-zone.drag-over {
+            border-color: var(--accent);
+            background: rgba(232,165,152,0.07);
+        }
+        .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+        .upload-zone .upload-icon { font-size: 2rem; margin-bottom: 0.4rem; }
+        .upload-zone p { font-size: 0.85rem; color: var(--text-muted); }
+        .upload-zone span { font-size: 0.75rem; color: var(--accent); font-weight: 500; }
+
+        #extracted-preview {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: var(--radius-sm);
+            display: none;
+            margin-bottom: 1rem;
+        }
+
+        .extracted-palette {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .ext-swatch {
+            flex: 1;
+            min-width: 60px;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: transform 0.15s;
+        }
+        .ext-swatch:hover { transform: translateY(-3px); }
+        .ext-swatch-color { height: 60px; }
+        .ext-swatch-label {
+            background: #fff;
+            padding: 0.3rem;
+            font-size: 0.68rem;
+            font-weight: 500;
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        /* ── FOOTER ── */
+        footer {
+            text-align: center;
+            padding: 1.2rem;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        /* ── TOAST ── */
+        .toast {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(60px);
+            background: var(--text);
+            color: #fff;
+            padding: 0.55rem 1.3rem;
+            border-radius: 50px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            opacity: 0;
+            transition: all 0.3s;
+            pointer-events: none;
+            z-index: 999;
+        }
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>✦ Chroma</h1>
+    <p>Your cozy color companion</p>
+</header>
+
+<div class="tabs">
+    <button class="tab-btn active" data-tab="picker">🎨 Picker</button>
+    <button class="tab-btn" data-tab="harmony">✦ Harmony</button>
+    <button class="tab-btn" data-tab="gradient">🌈 Gradient</button>
+    <button class="tab-btn" data-tab="extractor">🖼 Extract</button>
+</div>
+
+<div class="panels">
+
+    <!-- ── PICKER ── -->
+    <div class="panel active" id="panel-picker">
+        <div class="card">
+            <div class="color-preview" id="colorPreview">
+                <div class="color-badge" id="colorBadge">#FFFFFF</div>
+            </div>
+
+            <div class="mode-row">
+                <button class="mode-btn active" data-mode="hex">HEX</button>
+                <button class="mode-btn" data-mode="rgb">RGB</button>
+                <button class="mode-btn" data-mode="hsl">HSL</button>
+                <button class="mode-btn" data-mode="rgba">RGBA</button>
+            </div>
+
+            <div class="slider-group">
+                <div class="slider-row">
+                    <span class="slider-label">Red</span>
+                    <input type="range" id="slider-r" min="0" max="255" value="255">
+                    <span class="slider-val" id="val-r">255</span>
+                </div>
+                <div class="slider-row">
+                    <span class="slider-label">Green</span>
+                    <input type="range" id="slider-g" min="0" max="255" value="255">
+                    <span class="slider-val" id="val-g">255</span>
+                </div>
+                <div class="slider-row">
+                    <span class="slider-label">Blue</span>
+                    <input type="range" id="slider-b" min="0" max="255" value="255">
+                    <span class="slider-val" id="val-b">255</span>
+                </div>
+                <div class="slider-row">
+                    <span class="slider-label">Alpha</span>
+                    <input type="range" id="slider-a" min="0" max="100" value="100">
+                    <span class="slider-val" id="val-a">100%</span>
+                </div>
+            </div>
+
+            <button class="copy-all-btn" id="copyBtn">Copy Color Code</button>
+        </div>
+
+        <div class="card">
+            <div class="card-title">🌸 Saved Colors</div>
+            <div class="swatches-row" id="savedSwatches">
+                <button class="save-btn" id="saveColorBtn" title="Save current color">+</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── HARMONY ── -->
+    <div class="panel" id="panel-harmony">
+        <div class="card">
+            <div class="card-title">Base Color</div>
+            <div class="color-preview" id="harmonyBase" style="height:80px; cursor:pointer;">
+                <div class="color-badge" id="harmonyBaseBadge">#FF9999</div>
+            </div>
+            <div class="slider-row" style="margin-top:0.5rem">
+                <span class="slider-label">Red</span>
+                <input type="range" id="hslider-r" min="0" max="255" value="255">
+                <span class="slider-val" id="hval-r">255</span>
+            </div>
+            <div class="slider-row">
+                <span class="slider-label">Green</span>
+                <input type="range" id="hslider-g" min="0" max="255" value="153">
+                <span class="slider-val" id="hval-g">153</span>
+            </div>
+            <div class="slider-row">
+                <span class="slider-label">Blue</span>
+                <input type="range" id="hslider-b" min="0" max="255" value="153">
+                <span class="slider-val" id="hval-b">153</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Harmony Type</div>
+            <div class="harmony-type-grid">
+                <button class="harmony-btn active" data-harmony="complementary">Complementary</button>
+                <button class="harmony-btn" data-harmony="triadic">Triadic</button>
+                <button class="harmony-btn" data-harmony="tetradic">Tetradic</button>
+                <button class="harmony-btn" data-harmony="analogous">Analogous</button>
+                <button class="harmony-btn" data-harmony="split">Split-Comp</button>
+                <button class="harmony-btn" data-harmony="monochromatic">Monochromatic</button>
+            </div>
+            <div class="harmony-palette" id="harmonyPalette"></div>
+        </div>
+    </div>
+
+    <!-- ── GRADIENT ── -->
+    <div class="panel" id="panel-gradient">
+        <div class="card">
+            <div class="gradient-preview" id="gradientPreview"></div>
+
+            <div class="gradient-controls">
+                <button class="gradient-type-btn active" data-gtype="linear">Linear</button>
+                <button class="gradient-type-btn" data-gtype="radial">Radial</button>
+                <button class="gradient-type-btn" data-gtype="conic">Conic</button>
+                <div class="angle-row" id="angleRow">
+                    <span>Angle</span>
+                    <input type="range" id="gradientAngle" min="0" max="360" value="135">
+                    <span id="angleVal">135°</span>
+                </div>
+            </div>
+
+            <div class="card-title">Color Stops
+                <button class="add-stop-btn" id="addStop" style="margin-left:auto">+</button>
+            </div>
+            <div class="gradient-stops" id="gradientStops"></div>
+
+            <div style="margin-top:0.5rem">
+                <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:0.4rem;">CSS Code — click to copy</div>
+                <div class="gradient-code" id="gradientCode"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── EXTRACTOR ── -->
+    <div class="panel" id="panel-extractor">
+        <div class="card">
+            <div class="card-title" style="justify-content: space-between;">
+                <span>🖼 Drop an Image</span>
+                <button id="clearImgBtn" style="display:none; background:none; border:1px solid var(--border); border-radius:50px; padding:0.25rem 0.8rem; font-size:0.75rem; font-weight:500; color:var(--text-muted); cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.15s;" onmouseover="this.style.borderColor='#e88';this.style.color='#e88'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">✕ Clear</button>
+            </div>
+            <div class="upload-zone" id="uploadZone">
+                <input type="file" id="imgUpload" accept="image/*">
+                <div class="upload-icon">🌸</div>
+                <p>Drop your image here</p>
+                <span>or click to browse</span>
+            </div>
+            <img id="extracted-preview" alt="Uploaded">
+            <canvas id="imgCanvas" style="display:none"></canvas>
+        </div>
+        <div class="card" id="extractedCard" style="display:none">
+            <div class="card-title">Extracted Palette</div>
+            <div class="extracted-palette" id="extractedPalette"></div>
+        </div>
+    </div>
+
+</div>
+
+<footer>&copy; <span id="yr"></span> Ruchithjay · Chroma</footer>
+<div class="toast" id="toast"></div>
+
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+
+// ── UTILS ──
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+function copyText(text) {
+    navigator.clipboard.writeText(text).then(() => showToast('Copied: ' + text));
+}
+
+function rgbToHex(r, g, b) {
+    return '#' + [r,g,b].map(x => x.toString(16).padStart(2,'0')).join('');
+}
+
+function rgbToHsl(r, g, b) {
+    r /= 255; g /= 255; b /= 255;
+    const max = Math.max(r,g,b), min = Math.min(r,g,b);
+    let h, s, l = (max+min)/2;
+    if (max === min) { h = s = 0; }
+    else {
+        const d = max - min;
+        s = l > 0.5 ? d/(2-max-min) : d/(max+min);
+        switch(max) {
+            case r: h = (g-b)/d + (g<b?6:0); break;
+            case g: h = (b-r)/d + 2; break;
+            case b: h = (r-g)/d + 4; break;
+        }
+        h /= 6;
+    }
+    return { h: h*360, s: s*100, l: l*100 };
+}
+
+function hslToRgb(h, s, l) {
+    h /= 360; s /= 100; l /= 100;
+    let r, g, b;
+    if (s === 0) { r = g = b = l; }
+    else {
+        const hue2rgb = (p, q, t) => {
+            if (t < 0) t += 1; if (t > 1) t -= 1;
+            if (t < 1/6) return p + (q-p)*6*t;
+            if (t < 1/2) return q;
+            if (t < 2/3) return p + (q-p)*(2/3-t)*6;
+            return p;
+        };
+        const q = l < 0.5 ? l*(1+s) : l+s-l*s;
+        const p = 2*l - q;
+        r = hue2rgb(p,q,h+1/3); g = hue2rgb(p,q,h); b = hue2rgb(p,q,h-1/3);
+    }
+    return { r: Math.round(r*255), g: Math.round(g*255), b: Math.round(b*255) };
+}
+
+// ── TABS ──
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+    });
+});
+
+// ══════════════════════════════════════
+// ── PICKER ──
+// ══════════════════════════════════════
+let pR = 255, pG = 255, pB = 255, pA = 1;
+let currentMode = 'hex';
+const savedColors = [];
+
+const sliders = {
+    r: document.getElementById('slider-r'),
+    g: document.getElementById('slider-g'),
+    b: document.getElementById('slider-b'),
+    a: document.getElementById('slider-a'),
+};
+
+function getColorString() {
+    switch(currentMode) {
+        case 'hex': return rgbToHex(pR,pG,pB);
+        case 'rgb': return `rgb(${pR}, ${pG}, ${pB})`;
+        case 'hsl': {
+            const h = rgbToHsl(pR,pG,pB);
+            return `hsl(${Math.round(h.h)}, ${Math.round(h.s)}%, ${Math.round(h.l)}%)`;
+        }
+        case 'rgba': return `rgba(${pR}, ${pG}, ${pB}, ${pA.toFixed(2)})`;
+    }
+}
+
+function updatePicker() {
+    const preview = document.getElementById('colorPreview');
+    const badge = document.getElementById('colorBadge');
+    preview.style.backgroundColor = `rgba(${pR},${pG},${pB},${pA})`;
+    badge.textContent = getColorString();
+    document.getElementById('val-r').textContent = pR;
+    document.getElementById('val-g').textContent = pG;
+    document.getElementById('val-b').textContent = pB;
+    document.getElementById('val-a').textContent = Math.round(pA*100) + '%';
+    const brightness = (pR*299 + pG*587 + pB*114) / 1000;
+    badge.style.color = brightness > 160 ? '#333' : '#fff';
+    badge.style.background = brightness > 160 ? 'rgba(255,255,255,0.82)' : 'rgba(0,0,0,0.45)';
+    // update slider tracks
+    sliders.r.style.background = `linear-gradient(to right, rgb(0,${pG},${pB}), rgb(255,${pG},${pB}))`;
+    sliders.g.style.background = `linear-gradient(to right, rgb(${pR},0,${pB}), rgb(${pR},255,${pB}))`;
+    sliders.b.style.background = `linear-gradient(to right, rgb(${pR},${pG},0), rgb(${pR},${pG},255))`;
+}
+
+sliders.r.addEventListener('input', () => { pR = +sliders.r.value; updatePicker(); });
+sliders.g.addEventListener('input', () => { pG = +sliders.g.value; updatePicker(); });
+sliders.b.addEventListener('input', () => { pB = +sliders.b.value; updatePicker(); });
+sliders.a.addEventListener('input', () => { pA = sliders.a.value/100; updatePicker(); });
+
+document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentMode = btn.dataset.mode;
+        updatePicker();
+    });
+});
+
+document.getElementById('colorBadge').addEventListener('click', () => {
+    copyText(getColorString());
+});
+
+document.getElementById('copyBtn').addEventListener('click', () => {
+    copyText(getColorString());
+});
+
+// Saved colors
+document.getElementById('saveColorBtn').addEventListener('click', () => {
+    const hex = rgbToHex(pR, pG, pB);
+    if (savedColors.includes(hex)) { showToast('Already saved!'); return; }
+    if (savedColors.length >= 16) { showToast('Max 16 colors'); return; }
+    savedColors.push(hex);
+    renderSavedSwatches();
+});
+
+function renderSavedSwatches() {
+    const container = document.getElementById('savedSwatches');
+    container.innerHTML = '';
+    savedColors.forEach((hex, i) => {
+        const sw = document.createElement('div');
+        sw.className = 'swatch';
+        sw.style.background = hex;
+        sw.title = hex;
+        const del = document.createElement('span');
+        del.className = 'swatch-del';
+        del.textContent = '×';
+        del.addEventListener('click', (e) => {
+            e.stopPropagation();
+            savedColors.splice(i, 1);
+            renderSavedSwatches();
+        });
+        sw.appendChild(del);
+        sw.addEventListener('click', () => {
+            const r = parseInt(hex.slice(1,3),16);
+            const g = parseInt(hex.slice(3,5),16);
+            const b = parseInt(hex.slice(5,7),16);
+            pR = r; pG = g; pB = b;
+            sliders.r.value = r; sliders.g.value = g; sliders.b.value = b;
+            updatePicker();
+            copyText(hex);
+        });
+        container.appendChild(sw);
+    });
+    const addBtn = document.createElement('button');
+    addBtn.className = 'save-btn';
+    addBtn.id = 'saveColorBtn';
+    addBtn.textContent = '+';
+    addBtn.addEventListener('click', () => {
+        const hex = rgbToHex(pR, pG, pB);
+        if (savedColors.includes(hex)) { showToast('Already saved!'); return; }
+        if (savedColors.length >= 16) { showToast('Max 16 colors'); return; }
+        savedColors.push(hex);
+        renderSavedSwatches();
+    });
+    container.appendChild(addBtn);
+}
+
+updatePicker();
+renderSavedSwatches();
+
+// ══════════════════════════════════════
+// ── HARMONY ──
+// ══════════════════════════════════════
+let hR = 255, hG = 153, hB = 153;
+let harmonyType = 'complementary';
+
+const hSliders = {
+    r: document.getElementById('hslider-r'),
+    g: document.getElementById('hslider-g'),
+    b: document.getElementById('hslider-b'),
+};
+
+function updateHarmonyBase() {
+    const base = document.getElementById('harmonyBase');
+    const badge = document.getElementById('harmonyBaseBadge');
+    base.style.backgroundColor = `rgb(${hR},${hG},${hB})`;
+    badge.textContent = rgbToHex(hR,hG,hB);
+    document.getElementById('hval-r').textContent = hR;
+    document.getElementById('hval-g').textContent = hG;
+    document.getElementById('hval-b').textContent = hB;
+    generateHarmony();
+}
+
+hSliders.r.addEventListener('input', () => { hR = +hSliders.r.value; updateHarmonyBase(); });
+hSliders.g.addEventListener('input', () => { hG = +hSliders.g.value; updateHarmonyBase(); });
+hSliders.b.addEventListener('input', () => { hB = +hSliders.b.value; updateHarmonyBase(); });
+
+document.querySelectorAll('.harmony-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.harmony-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        harmonyType = btn.dataset.harmony;
+        generateHarmony();
+    });
+});
+
+function generateHarmony() {
+    const hsl = rgbToHsl(hR, hG, hB);
+    let angles = [];
+    switch(harmonyType) {
+        case 'complementary': angles = [0, 180]; break;
+        case 'triadic': angles = [0, 120, 240]; break;
+        case 'tetradic': angles = [0, 90, 180, 270]; break;
+        case 'analogous': angles = [-30, -15, 0, 15, 30]; break;
+        case 'split': angles = [0, 150, 210]; break;
+        case 'monochromatic': angles = [0, 0, 0, 0, 0]; break;
+    }
+
+    const colors = angles.map((angle, i) => {
+        let h = (hsl.h + angle + 360) % 360;
+        let s = hsl.s, l = hsl.l;
+        if (harmonyType === 'monochromatic') {
+            l = [20, 35, 50, 65, 80][i];
+        }
+        return hslToRgb(h, s, l);
+    });
+
+    const container = document.getElementById('harmonyPalette');
+    container.innerHTML = '';
+    colors.forEach(c => {
+        const hex = rgbToHex(c.r, c.g, c.b);
+        const sw = document.createElement('div');
+        sw.className = 'harmony-swatch';
+        sw.innerHTML = `<div class="harmony-color-block" style="background:${hex}"></div><div class="harmony-color-info">${hex}</div>`;
+        sw.addEventListener('click', () => copyText(hex));
+        container.appendChild(sw);
+    });
+}
+
+updateHarmonyBase();
+
+// ══════════════════════════════════════
+// ── GRADIENT ──
+// ══════════════════════════════════════
+let gradientType = 'linear';
+let gradientAngle = 135;
+let gradientStops = [
+    { color: '#f9c5d5', pos: 0 },
+    { color: '#b8d0f0', pos: 100 },
+];
+
+function renderGradientStops() {
+    const container = document.getElementById('gradientStops');
+    container.innerHTML = '';
+    gradientStops.forEach((stop, i) => {
+        const row = document.createElement('div');
+        row.className = 'stop-row';
+        row.innerHTML = `
+            <div class="stop-color-swatch" style="background:${stop.color}">
+                <input type="color" value="${stop.color}" data-idx="${i}">
+            </div>
+            <span class="stop-pos-label">${stop.pos}%</span>
+            <input type="range" class="stop-pos-slider" min="0" max="100" value="${stop.pos}" data-idx="${i}" style="flex:1;background:linear-gradient(to right,#d0c0b8,#a09080)">
+            ${gradientStops.length > 2 ? `<button class="remove-stop-btn" data-idx="${i}">−</button>` : '<span style="width:28px"></span>'}
+        `;
+        container.appendChild(row);
+    });
+
+    container.querySelectorAll('input[type="color"]').forEach(inp => {
+        inp.addEventListener('input', (e) => {
+            gradientStops[+e.target.dataset.idx].color = e.target.value;
+            e.target.closest('.stop-color-swatch').style.background = e.target.value;
+            updateGradient();
+        });
+    });
+    container.querySelectorAll('.stop-pos-slider').forEach(inp => {
+        inp.addEventListener('input', (e) => {
+            gradientStops[+e.target.dataset.idx].pos = +e.target.value;
+            e.target.previousElementSibling.textContent = e.target.value + '%';
+            updateGradient();
+        });
+    });
+    container.querySelectorAll('.remove-stop-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            gradientStops.splice(+e.target.dataset.idx, 1);
+            renderGradientStops();
+            updateGradient();
+        });
+    });
+}
+
+function getGradientCSS() {
+    const sorted = [...gradientStops].sort((a,b) => a.pos - b.pos);
+    const stops = sorted.map(s => `${s.color} ${s.pos}%`).join(', ');
+    if (gradientType === 'linear') return `linear-gradient(${gradientAngle}deg, ${stops})`;
+    if (gradientType === 'radial') return `radial-gradient(circle, ${stops})`;
+    return `conic-gradient(from ${gradientAngle}deg, ${stops})`;
+}
+
+function updateGradient() {
+    const css = getGradientCSS();
+    document.getElementById('gradientPreview').style.background = css;
+    document.getElementById('gradientCode').textContent = `background: ${css};`;
+}
+
+document.getElementById('addStop').addEventListener('click', () => {
+    gradientStops.push({ color: '#c8e0c0', pos: 50 });
+    renderGradientStops();
+    updateGradient();
+});
+
+document.querySelectorAll('.gradient-type-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.gradient-type-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        gradientType = btn.dataset.gtype;
+        document.getElementById('angleRow').style.display = gradientType === 'radial' ? 'none' : 'flex';
+        updateGradient();
+    });
+});
+
+document.getElementById('gradientAngle').addEventListener('input', (e) => {
+    gradientAngle = +e.target.value;
+    document.getElementById('angleVal').textContent = gradientAngle + '°';
+    updateGradient();
+});
+
+document.getElementById('gradientCode').addEventListener('click', () => {
+    copyText(document.getElementById('gradientCode').textContent);
+});
+
+renderGradientStops();
+updateGradient();
+
+// ══════════════════════════════════════
+// ── IMAGE EXTRACTOR ──
+// ══════════════════════════════════════
+const uploadZone = document.getElementById('uploadZone');
+const imgUpload = document.getElementById('imgUpload');
+const canvas = document.getElementById('imgCanvas');
+const ctx = canvas.getContext('2d');
+
+uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+uploadZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadZone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) processImage(file);
+});
+
+imgUpload.addEventListener('change', (e) => {
+    if (e.target.files[0]) processImage(e.target.files[0]);
+});
+
+document.getElementById('clearImgBtn').addEventListener('click', () => {
+    const preview = document.getElementById('extracted-preview');
+    preview.src = '';
+    preview.style.display = 'none';
+    uploadZone.style.display = 'block';
+    document.getElementById('clearImgBtn').style.display = 'none';
+    document.getElementById('extractedCard').style.display = 'none';
+    document.getElementById('extractedPalette').innerHTML = '';
+    imgUpload.value = '';
+});
+
+function processImage(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+            const preview = document.getElementById('extracted-preview');
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            uploadZone.style.display = 'none';
+            document.getElementById('clearImgBtn').style.display = 'block';
+
+            canvas.width = Math.min(img.width, 200);
+            canvas.height = Math.min(img.height, 200);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            extractColors();
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+
+function extractColors() {
+    const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+    const colorMap = {};
+    const step = 8;
+    for (let i = 0; i < data.length; i += 4 * step) {
+        const r = Math.round(data[i] / 24) * 24;
+        const g = Math.round(data[i+1] / 24) * 24;
+        const b = Math.round(data[i+2] / 24) * 24;
+        const key = `${r},${g},${b}`;
+        colorMap[key] = (colorMap[key] || 0) + 1;
+    }
+
+    const sorted = Object.entries(colorMap).sort((a,b) => b[1] - a[1]);
+    const top = [];
+    for (const [key] of sorted) {
+        const [r,g,b] = key.split(',').map(Number);
+        // skip near-white and near-black
+        const brightness = (r*299 + g*587 + b*114) / 1000;
+        if (brightness < 15 || brightness > 240) continue;
+        // skip if too similar to existing
+        const tooSimilar = top.some(t => {
+            return Math.abs(t.r-r) < 40 && Math.abs(t.g-g) < 40 && Math.abs(t.b-b) < 40;
+        });
+        if (!tooSimilar) top.push({ r, g, b });
+        if (top.length >= 8) break;
+    }
+
+    const container = document.getElementById('extractedPalette');
+    container.innerHTML = '';
+    top.forEach(c => {
+        const hex = rgbToHex(c.r, c.g, c.b);
+        const sw = document.createElement('div');
+        sw.className = 'ext-swatch';
+        sw.innerHTML = `<div class="ext-swatch-color" style="background:${hex}"></div><div class="ext-swatch-label">${hex}</div>`;
+        sw.addEventListener('click', () => copyText(hex));
+        container.appendChild(sw);
+    });
+
+    document.getElementById('extractedCard').style.display = 'block';
+}
+</script>
+</body>
+</html>
+
         </div>
         
         <div class="controls">
